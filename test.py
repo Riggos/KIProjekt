@@ -13,3 +13,4 @@ cv.imshow('dst',img)
 if cv.waitKey(0) & 0xff == 27:
     cv.destroyAllWindows()
     print("Hgfdsdfsfgfidunkey)")
+    print("Wabbel")

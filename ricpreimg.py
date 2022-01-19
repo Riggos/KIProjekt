@@ -41,7 +41,7 @@ class preimg:
         cnts2 = cnts2[0] if len(cnts2) == 2 else cnts2[1]
         c2 = max(cnts2, key=cv2.contourArea)
 
-        
+        # Kontuur maxima berechnen 
         left1 = tuple(c1[c1[:, :, 0].argmin()][0])
         right1 = tuple(c1[c1[:, :, 0].argmax()][0])
         top1 = tuple(c1[c1[:, :, 1].argmin()][0])

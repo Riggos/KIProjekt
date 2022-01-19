@@ -14,7 +14,6 @@ class preimg:
     def setimg(self,pimg):
         self.img = pimg
         self.draw_img = pimg
-        print("Hi")
         return 1
 
     def prepreprocess(self):
@@ -33,7 +32,7 @@ class preimg:
         canny_img2= cv2.Canny(image=image, threshold1=8,threshold2=194)
 
         dil_img1 = cv2.dilate(canny_img1,Groesse,iterations = 6)
-        dil_img2 = cv2.dilate(canny_img2,Groesse,iterations = 6)
+        dil_img2 = cv2.dilate(canny_img2,Groesse,iterations = 3)
         
         cnts1 = cv2.findContours(dil_img1, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         cnts1 = cnts1[0] if len(cnts1) == 2 else cnts1[1]
@@ -42,6 +41,7 @@ class preimg:
         cnts2 = cnts2[0] if len(cnts2) == 2 else cnts2[1]
         c2 = max(cnts2, key=cv2.contourArea)
 
+        
         left1 = tuple(c1[c1[:, :, 0].argmin()][0])
         right1 = tuple(c1[c1[:, :, 0].argmax()][0])
         top1 = tuple(c1[c1[:, :, 1].argmin()][0])
@@ -54,7 +54,7 @@ class preimg:
         bottom2 = tuple(c2[c2[:, :, 1].argmax()][0])
         mpkt_conts2 = ( left2[0]+int((right2[0]-left2[0])/2),top2[1] + int((bottom2[1] - top2[1])/2))
 
-        if 0.1*width > left1[0] or right1[0] > 0.9*width or 0.1*height > top1[1] or bottom1[1] > 0.9*height:
+        if 0.1*width < left1[0] and right1[0] < 0.9*width and 0.1*height < top1[1] and bottom1[1] < 0.9*height:
             if np.sum(np.abs(np.subtract(mpkt_conts1,mpkt))) < np.sum(np.abs(np.subtract(mpkt_conts2,mpkt))):
                 self.imgdict = {
                     "cannyimg": canny_img1,
@@ -69,6 +69,11 @@ class preimg:
                     "bottom": bottom1,
                     "mpkt_conts": mpkt_conts2,
                     }
+                cv2.circle(self.draw_img, left1, 12, (0, 50, 255), -1)
+                cv2.circle(self.draw_img, right1, 8, (0, 255, 255), -1)
+                cv2.circle(self.draw_img, top1, 10, (255, 50, 0), -1)
+                cv2.circle(self.draw_img, bottom1, 8, (255, 255, 0), -1)
+                cv2.drawContours(self.draw_img, [c1], -1, (36, 255, 12), 2)
                 return 1
             
         self.imgdict = {
@@ -84,6 +89,11 @@ class preimg:
             "bottom": bottom2,
             "mpkt_conts": mpkt_conts2,
             }
+        cv2.circle(self.draw_img, left2, 8, (0, 50, 255), -1)
+        cv2.circle(self.draw_img, right2, 8, (0, 255, 255), -1)
+        cv2.circle(self.draw_img, top2, 8, (255, 50, 0), -1)
+        cv2.circle(self.draw_img, bottom2, 8, (255, 255, 0), -1)
+        cv2.drawContours(self.draw_img, [c2], -1, (36, 255, 12), 2)
         return 1
     
     def calc_rel_breitgroß(self):
@@ -113,10 +123,10 @@ class preimg:
         if d_breit < d_hoch:
             thresh_oben =  top[1] + 0.3*d_hoch
             thresh_unten = top[1] + 0.7*d_hoch
-            sleftO = mpkt_conts[0]
-            srightO = mpkt_conts[0]
-            sleftU = mpkt_conts[0]
-            srightU = mpkt_conts[0]
+            sleftO = np.Inf
+            srightO = 0
+            sleftU = np.Inf
+            srightU = 0
             for idx,y_wert in enumerate(cnts[:,0,1]):
                 if y_wert < thresh_oben:
                     if cnts[idx,0,0] < sleftO:
@@ -133,10 +143,12 @@ class preimg:
                         srightU = cnts[idx,0,0]
                         srpktU = cnts[idx][0]
 
-            s_breitO = distance.euclidean(sleftO, srightO)
-            s_breitU = distance.euclidean(sleftU, srightU)
+            #s_breitO = distance.euclidean(sleftO, srightO)
+            #s_breitU = distance.euclidean(sleftU, srightU)
+            s_breitO = sleftO - srightU
+            s_breitU =  sleftU -srightU
             self.imgdict["spitze_pktO"] = [slpktO,srpktO]
-            self.imgdict["spitze_pktU"] = [slpktU,srpktU]
+            self.imgdict["spitze_pktU"] = [slpktU,srightU]
             return abs(s_breitO/d_breit), abs(s_breitU/d_breit)
 
         else:
@@ -161,6 +173,9 @@ class preimg:
 
             s_hochO = distance.euclidean(sobenO, suntenO)
             s_hochU = distance.euclidean(sobenU, suntenU)
+
+
+
             return abs(s_hochO/d_hoch), abs(s_hochU/d_hoch)
 
     def calc_canny_lines(self):

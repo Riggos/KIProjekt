@@ -5,9 +5,10 @@ import random
 
 def loadCsv(filename):
 
-    df = pd.read_csv('ric.csv', usecols=[
-                     'Rel_BreitGroß', 'RelSpitze_oben', 'RelSpitze_unten', 'Anzahl_Linie', 'Anzahl_Kreis', 'Label'])
+    df = pd.read_csv(filename, usecols=['Rel_BreitGroß', 'RelSpitze_oben',
+                     'RelSpitze_unten', 'Anzahl_Linie', 'Anzahl_Kreis', 'Label'], dtype="Float64")
     dataset = df.values.tolist()
+
     for i in range(len(dataset)):
         dataset[i] = [float(x) for x in dataset[i]]
     return dataset
@@ -101,7 +102,7 @@ def getAccuracy(testSet, predictions):
 
 
 def main():
-    filename = 'Data_Marius.csv'
+    filename = 'ric.csv'
     splitRatio = 0.8
     datset = loadCsv(filename)
     trainingSet, testSet = splitDataset(datset, splitRatio)
@@ -114,4 +115,5 @@ def main():
     accuracy = getAccuracy(testSet, predictions)
     print('Acucuracy: {0}%'.format(accuracy))
 
-    main()
+
+main()

@@ -154,3 +154,5 @@ cython_debug/
 =======
 *.jpeg
 >>>>>>> 95a20eb72bc700f1e482429e1a34ff29975c6a17
+
+*.csv

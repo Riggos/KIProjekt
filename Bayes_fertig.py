@@ -15,7 +15,7 @@ def loadCsv(filename):
     return dataset
 
 
-lines = loadCsv('ricsBigData.csv')
+lines = loadCsv('ricsData2.csv')
 dataset = pd.DataFrame(lines)
 # print(dataset.head())
 data = dataset.iloc[:, 0:6]

@@ -6,8 +6,8 @@ from sklearn import metrics
 
 def loadCsv(filename):
 
-    df = pd.read_csv(filename, usecols=['Rel_BreitGroß', 'RelSpitze_oben',
-                     'RelSpitze_unten', 'Anzahl_Linie', 'Anzahl_Kreis', 'Label'])
+    df = pd.read_csv(filename, usecols=['Rel_BreitGross', 'RelSpitze_oben',
+                                        'RelSpitze_unten', 'Anzahl_Linie', 'Anzahl_Kreis', 'Anzahl_Ecken', 'Label'])
     dataset = df.values.tolist()
 
     for i in range(len(dataset)):
@@ -15,12 +15,12 @@ def loadCsv(filename):
     return dataset
 
 
-lines = loadCsv('ric.csv')
+lines = loadCsv('ricsData2.csv')
 dataset = pd.DataFrame(lines)
 # print(dataset.head())
-data = dataset.iloc[:, 0:5]
+data = dataset.iloc[:, 0:6]
 # print(data.head())
-label = dataset.iloc[:, 5]
+label = dataset.iloc[:, 6]
 # print(data.head())
 
 

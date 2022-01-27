@@ -13,22 +13,29 @@ class preimg:
         self.imgdict ={}
 
     def setimg(self,pimg):
+        """Image einlesen von dem der Feature-Vektor erstellt wird:
+        Bild wird dazu resized """
         resize = cv2.resize(pimg, (700, 700))
         self.img = copy.deepcopy(resize)
         self.draw_img = copy.deepcopy(resize)
         return 1
 
     def prepreprocess(self):
+        """Erste Version für die Vorverarbeitung des Bildes: Schwarz/Weiß Bild und Unschärfe"""
         img = self.img
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         blur = cv2.GaussianBlur(gray, (9, 9), 0)
         return blur
 
     def prepreprocess2(self):
+        """(wird nicht benutzt) Zweite Version für Vorbereitung des Bildes"""
         quadrat = cv2.resize(self.img, (500, 500))
         gray = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
 
     def calc_canny_cnts(self):
+        """"Version 1 um vom Bild die Hauptinformation zu extrahieren:
+        Konturen, Maxima, innter Kontures usw. werdem in self.imgdicht geschrieben.
+        Es wird als Hauptfunktion hierfür der Canny Filter benutzt"""
         Flag = False
         image = self.prepreprocess()
         height, width = image.shape
@@ -110,7 +117,9 @@ class preimg:
         return 1
     
     def canny_filter2(self):
-
+        """"Version 2 um vom Bild die Hauptinformation zu extrahieren:
+        Konturen, Maxima, innter Kontures usw. werdem in self.imgdicht geschrieben.
+        Es wird als Hauptfunktion hierfür der Canny Filter benutzt. Es wird versucht automatisch die besten Parameter für den Canny Filter zu finden"""
         Flag = False
         image = self.prepreprocess()
         height, width = image.shape
@@ -200,6 +209,9 @@ class preimg:
         return 1
     
     def calc_threshold_cnts(self):
+        """"Version 3 um vom Bild die Hauptinformation zu extrahieren:
+        Konturen, Maxima, innter Kontures usw. werdem in self.imgdicht geschrieben.
+        Es wird als Hauptfunktion hierfür der Threshhold Filter benutzt"""
         image = self.prepreprocess()
         height, width = image.shape
         mpkt= (int(width/2),int(height/2)) # (x,y)
@@ -264,7 +276,7 @@ class preimg:
         return abs(d_breit/d_hoch)
 
     def calc_rel_breitgroß_2(self):
-        """Rechnet das Größe/ Breite Verhältnis mit cv2 aus"""
+        """Rechnet das Größe/ Breite Verhältnis mit cv2.minAreaRet aus"""
         # ( center (x,y), (width, height), angle of rotation )
         cnts = self.imgdict["cmax"]
         rect = cv2.minAreaRect(cnts)
@@ -275,7 +287,7 @@ class preimg:
         return min(width, height)/ max(width, height)
 
     def calc_rel_spitze(self):
-
+        """Rechnet Verhältnis von den Breiten der Enden/Spizen zur Gesamtbreite aus"""
         "Compares width"
 
         left, right = self.imgdict["left"],self.imgdict["right"]
@@ -347,6 +359,7 @@ class preimg:
             return abs(s_hochO/d_hoch), abs(s_hochU/d_hoch)
     
     def calc_canny_lines(self):
+        """Rechnet die Anzahl an entdeckten Linien aus"""
         cannyimg = self.imgdict["cannyimg"]
         lines = cv2.HoughLinesP(cannyimg,rho = 1,theta = 1*np.pi/180,threshold = 100,minLineLength = 30,maxLineGap = 2)
         
@@ -355,6 +368,7 @@ class preimg:
         return 0
 
     def calc_edges(self):
+        """Rechnet die Anzahl an entdeckten Ecken am Rand des Gegenstands aus"""
         cnts = self.imgdict["cmax"]
         blank_image = np.zeros((self.imgdict["height"],self.imgdict["width"]), np.uint8)
         cv2.drawContours(blank_image, [cnts], -1, color=(255, 255, 255), thickness=cv2.FILLED)
@@ -370,6 +384,7 @@ class preimg:
         return len(corners)
         
     def calc_edges2(self):
+        """Rechnet die Anzahl an entdeckten Ecken aus"""
         img = self.img
         img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
         corners = cv2.goodFeaturesToTrack(img,1000,0.3,5)
@@ -382,6 +397,7 @@ class preimg:
         return 0
 
     def calc_circles(self):
+        """Rechnet die Anzahl an entdeckten Kreisen aus"""
         img = self.img
         img = cv2.medianBlur(img,5)
         img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
@@ -393,6 +409,7 @@ class preimg:
         return 0
 
     def draw_image(self, wasdenn = None):
+        """Funktion um entdeckte Features visuell auf einen extra Bild darzustellen"""
 
         if wasdenn is "cnts" or wasdenn is None:
             cnts = self.imgdict["cmax"]
@@ -423,11 +440,11 @@ class preimg:
         return 1
 
     def clean_draw(self):
-        """Resclean_drawets draw_img"""
+        """Resetet das extra Bild sodass keine Features mehr aufgemalt sind"""
         self.draw_img = copy.deepcopy(self.img)
 
     def clean_data(self):
-        """Clean all Data"""
+        """Säubert alle Daten von der Klasse: SUPERRESET"""
         self.img = None
         self.draw_img = None
         self.imgdict ={}

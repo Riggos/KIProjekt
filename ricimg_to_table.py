@@ -21,14 +21,17 @@ class imgorga:
             self.image_paths.append(imgs)
 
     def get_feature_names(self,features_names):
+        """Gesammelte Vekotren als Panda_Frame ausgeben für die Weiterverarbeitung"""
         self.panda_frame = pd.DataFrame (self.numericdata_list, columns = features_names)
         return self.panda_frame
 
     def collect_numeric_data(self,feature_values):
+        """Features eines Bildes als Vektor in eine Liste einschreiben"""
         self.numericdata_list.append(feature_values)
         return 1
         
 
     def hardcode_makadata(self):
+        """Was ist der Standard-Pfad der Klasse"""
         return os.getcwd()
 

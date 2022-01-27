@@ -16,6 +16,7 @@ class data_aug(ritt.imgorga):
         self.name = "_"
 
     def setimg(self,img_path):
+        """Zu veränderndes Bild festlegen und resizen"""
         img = cv2.imread(img_path)
         resize = cv2.resize(img, (100, 100))
         self.img = copy.deepcopy(resize)
@@ -23,13 +24,16 @@ class data_aug(ritt.imgorga):
         return 1
 
     def gray(self):
+        """Bild wird schwarzweiss"""
         self.save_img = cv2.cvtColor(self.save_img, cv2.COLOR_BGR2GRAY)
         
     def blur(self):
+        """Macht das Bild unscharf"""
         self.save_img = cv2.GaussianBlur(self.save_img, (5, 5), 0)
         return 1
 
     def rotate_img(self):
+        """Rotiert das Bild mit zufälligen Winkel"""
         angle = np.random.randint(0,360)
         h, w = self.img.shape[:2]
         M = cv2.getRotationMatrix2D((int(w/2), int(h/2)), angle, 1)
@@ -37,13 +41,15 @@ class data_aug(ritt.imgorga):
         return 1
 
     def flip_img(self):
+        """Spiegelt das Bild"""
         VH = np.random.randint(0,1)
         self.save_img = cv2.flip(self.save_img, VH)
 
     def add_noise(self, noise_type="gauss"):
+        """Verändert das Bild mit Nois"""
         if noise_type == "gauss":
             mean=0
-            st=0.5
+            st=0.7
             gauss = np.random.normal(mean,st,self.save_img.shape)
             gauss = gauss.astype('uint8')
             self.save_img = cv2.add(self.save_img,gauss)
@@ -66,6 +72,7 @@ class data_aug(ritt.imgorga):
             self.save_img[probs > 1 - (prob / 2)] = white
 
     def do_random_aug(self):
+        """Zufall entscheidet wie das Bild veränder wird und verändern  self.name um zu wissen was veränder wurde"""
         choice = np.random.randint(2, size=5)
         if choice[0]:
             self.blur()
@@ -93,22 +100,32 @@ class data_aug(ritt.imgorga):
         else:
             self.name += "0"
 
+    def clean_save(self):
+        """Resclean_drawets draw_img"""
+        self.save_img = copy.deepcopy(self.img)
+
     def save_imgs(self,new_location):
+        """Erstellt neuen Speicherot mit normalen und veränderten Bildern"""
         os.makedirs(new_location, exist_ok=True)
         for idx,label in enumerate(self.labels):
             path_with_label = os.path.join(new_location,label)
             os.makedirs(path_with_label, exist_ok=True)
             for img_path in self.image_paths[idx]:
                 filename = os.path.basename(img_path)
+                filename = os.path.splitext(filename)[0]
                 filetype = os.path.splitext(img_path)[1]
                 self.setimg(img_path)
-                self.do_random_aug()
+                for count in range(5):
+                    count_name = "_"+str(count)
+                    self.do_random_aug()
+                    save2 = os.path.join(path_with_label, filename+ count_name + self.name + filetype)
+                    cv2.imwrite(save2,self.save_img)
+                    self.clean_save()
+                    self.name = "_"
+
                 save1 = os.path.join(path_with_label, filename + filetype)
-                str
-                save2 = os.path.join(path_with_label, filename+ self.name + filetype)
                 cv2.imwrite(save1,self.img)
-                cv2.imwrite(save2,self.save_img)
-                self.name = "_"
+                
         return 1
 
 

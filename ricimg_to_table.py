@@ -32,4 +32,3 @@ class imgorga:
     def hardcode_makadata(self):
         return os.getcwd()
 
-    

@@ -74,25 +74,12 @@ class Data_preparation:
 
         return X_train, X_test, y_train, y_test
 
-    def get_potential_splits(self, data):  # Input is a numpy 2D arry
+    def draw_scatterplot(self, df):
+        di = {0: 'Dosenoeffner', 1: 'Falschenoeffner',
+              2: 'Korkenzieher'}  # dictionary
 
-        potential_splits = {}
-        _, n_columns = data.shape
-        # excluding the last column which is the label
-        for column_index in range(n_columns - 1):
-            values = data[:, column_index]
-            unique_values = np.unique(values)  # store the unique values sorted
-
-            potential_splits[column_index] = unique_values
-
-        return potential_splits
-
-    def draw_scatterplot(self, dataset, train_df, x_value, y_value, feature_to_split):
-        potential_splits = self.get_potential_splits(dataset.values)
-        sns.lmplot(data=train_df, x=x_value, y=y_value, fit_reg=False, hue="Label",
-                   size=6, aspect=1.5)  # Plot a scatterplot for two chosen columns
-        # draw the potential Splits for the chosen row
-        plt.vlines(x=potential_splits[feature_to_split], ymin=7, ymax=80)
+        before = sns.pairplot(df.replace({'Label': di}), hue='Label')
+        before.fig.suptitle('Pair Plot of Dataset', y=1.08)
 
     def load_pictures(self, folder_location):
         path = 'animal/'
@@ -113,7 +100,7 @@ class Data_preparation:
 
         return img_dict
 
-    def create_dataset(self, img_folder, IMG_HEIGHT, IMG_WIDTH):
+    def create_Image_dataset(self, img_folder, IMG_HEIGHT, IMG_WIDTH):
 
         img_data_array = []
         class_name = []
@@ -168,3 +155,8 @@ class Data_preparation:
         y_test = np.array(y_test)
 
         return X_train, X_test, y_train, y_test
+
+    def draw_corr_matrix(self, df):
+        features = df.iloc[:, :-1]
+        CorrMatrix = features.corr()
+        sns.heatmap(CorrMatrix, annot=True)

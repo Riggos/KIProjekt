@@ -36,13 +36,13 @@ class Data_preparation:
         dataset = df.values.tolist()
         return dataset
 
-    def split_data(self, df, test_size):
+    def split_data(self, df, train_size):
 
         just_a_list = []
         listindex = False
 
-        if isinstance(test_size, float):
-            test_size = round(test_size * len(df))
+        if isinstance(train_size, float):
+            train_size = round(train_size * len(df))
 
         if type(df) == type(just_a_list):
 
@@ -51,14 +51,14 @@ class Data_preparation:
 
         indices = df.index.tolist()
         # get random indizes for the split
-        test_indices = random.sample(population=indices, k=test_size)
+        train_indices = random.sample(population=indices, k=train_size)
         X = df.iloc[:, :-1]  # get the featuers
         Y = df.iloc[:, -1]  # only get the Label column
 
-        X_train = X.loc[test_indices]  # get the training feature
-        y_train = Y.loc[test_indices]  # get the training Labels
-        X_test = X.drop(test_indices)  # get the test features
-        y_test = Y.drop(test_indices)  # get the training Labels
+        X_train = X.loc[train_indices]  # get the training feature
+        y_train = Y.loc[train_indices]  # get the training Labels
+        X_test = X.drop(train_indices)  # get the test features
+        y_test = Y.drop(train_indices)  # get the training Labels
 
         y_train = y_train.to_frame()
         y_test = y_test.to_frame()
@@ -77,8 +77,8 @@ class Data_preparation:
     def draw_scatterplot(self, df):
         di = {0: 'Dosenoeffner', 1: 'Falschenoeffner',
               2: 'Korkenzieher'}  # dictionary
-
-        before = sns.pairplot(df.replace({'Label': di}), hue='Label')
+        columns = df.columns
+        before = sns.pairplot(df.replace({columns[-1]: di}), hue=columns[-1])
         before.fig.suptitle('Pair Plot of Dataset', y=1.08)
 
     def load_pictures(self, folder_location):

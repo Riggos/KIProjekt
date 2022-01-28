@@ -1,4 +1,16 @@
 
+#!/usr/bin/env python
+"""Dieses Python File beinhaltet eine Klasse "data_aug" um Data Augmentation auf Bilder in einem Ordner durchzuführen
+und diese mit den ursprünglichen Bildern in einen angegebenden Ort abzuspeichern.
+Die Klasse gibt die Features einzeln direkt aus --> keine Vektorschreibweise
+
+Die Klasse "data_aug" erbt von der Klasse "imgorga" aus ricimg_to_table um die Datenpfade der Bilder einfach
+zu erhalten.
+"""
+
+__author__ = "Eric Hirsch und Jonas Morsch"
+__version__ = "1.0.1"
+
 import cv2
 import os
 import numpy as np
@@ -9,6 +21,7 @@ import ricimg_to_table as ritt
 
 class data_aug(ritt.imgorga):
     def __init__(self,location) -> None:
+        """Als Übergabe die "location" indem sich die Bilder befinden"""
         super().__init__(location)
         self.img = None
         self.save_img = None
@@ -16,7 +29,7 @@ class data_aug(ritt.imgorga):
         self.name = "_"
 
     def setimg(self,img_path):
-        """Zu veränderndes Bild festlegen und resizen"""
+        """Zu veränderndes Bild "img_path" festlegen und resizen"""
         img = cv2.imread(img_path)
         resize = cv2.resize(img, (100, 100))
         self.img = copy.deepcopy(resize)
@@ -47,7 +60,7 @@ class data_aug(ritt.imgorga):
         self.save_img = cv2.flip(self.save_img, VH)
 
     def add_noise(self, noise_type="gauss"):
-        """Verändert das Bild mit Noise"""
+        """Verändert das Bild mit Noise (noise_type entweder gauss oder sp)"""
         if noise_type == "gauss":
             mean=0
             st=0.7
@@ -106,7 +119,8 @@ class data_aug(ritt.imgorga):
         self.save_img = copy.deepcopy(self.img)
 
     def save_imgs(self,new_location):
-        """Erstellt neuen Speicherot mit normalen und veränderten Bildern"""
+        """Erstellt neuen Speicherot mit normalen und veränderten Bildern.
+        Mit "new_location gibt man den neuen Speicherort an"""
         os.makedirs(new_location, exist_ok=True)
         for idx,label in enumerate(self.labels):
             path_with_label = os.path.join(new_location,label)

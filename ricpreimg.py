@@ -1,4 +1,12 @@
-from turtle import left
+#!/usr/bin/env python
+"""Dieses Python File beinhaltet eine Klasse "preimg" um aus einem Bild verschiedene Features zu extrahieren.
+Dazu nutzt es vorallem die OpenCv-Bibliothek. Zudem kann die Klasse Bilder mit Features visuell darstellen.
+"""
+
+__author__ = "Eric Hirsch und Jonas Morsch"
+__version__ = "1.0.3"
+
+
 import cv2
 import numpy as np
 from scipy.spatial import distance
@@ -117,7 +125,7 @@ class preimg:
         return 1
     
     def canny_filter2(self):
-        """"Version 2 um vom Bild die Hauptinformation zu extrahieren:
+        """Version 2 um vom Bild die Hauptinformation zu extrahieren:
         Konturen, Maxima, innter Kontures usw. werdem in self.imgdicht geschrieben.
         Es wird als Hauptfunktion hierfür der Canny Filter benutzt. Es wird versucht automatisch die besten Parameter für den Canny Filter zu finden"""
         Flag = False
@@ -209,7 +217,7 @@ class preimg:
         return 1
     
     def calc_threshold_cnts(self):
-        """"Version 3 um vom Bild die Hauptinformation zu extrahieren:
+        """Version 3 um vom Bild die Hauptinformation zu extrahieren:
         Konturen, Maxima, innter Kontures usw. werdem in self.imgdicht geschrieben.
         Es wird als Hauptfunktion hierfür der Threshhold Filter benutzt"""
         image = self.prepreprocess()

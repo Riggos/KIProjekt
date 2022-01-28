@@ -1,3 +1,12 @@
+"""Dieses Python File beinhaltet eine Klasse "imgorga" um die Speicherorte und Labels der verschiedenen Bilder auszulesen,
+um die Bilder einlesen zu können.
+Zudem sammelt es extrahierte Features in eine Liste aus Vektoren (Ein Vektor gehört zu einem Bild) und wandelt diese 
+in ein Panda.Dataframe um, sodass dieses leicht weiterverarbeitet werden kann.
+"""
+
+__author__ = "Eric Hirsch und Jonas Morsch"
+__version__ = "1.0.0"
+
 import os
 import pandas as pd
 

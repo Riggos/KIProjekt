@@ -26,6 +26,7 @@ class data_aug(ritt.imgorga):
     def gray(self):
         """Bild wird schwarzweiss"""
         self.save_img = cv2.cvtColor(self.save_img, cv2.COLOR_BGR2GRAY)
+        self.save_img = cv2.cvtColor(self.save_img, cv2.COLOR_GRAY2BGR)
         
     def blur(self):
         """Macht das Bild unscharf"""
@@ -46,7 +47,7 @@ class data_aug(ritt.imgorga):
         self.save_img = cv2.flip(self.save_img, VH)
 
     def add_noise(self, noise_type="gauss"):
-        """Verändert das Bild mit Nois"""
+        """Verändert das Bild mit Noise"""
         if noise_type == "gauss":
             mean=0
             st=0.7

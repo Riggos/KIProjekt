@@ -60,6 +60,12 @@ class Data_preparation:
         X_test = X.drop(test_indices)  # get the test features
         y_test = Y.drop(test_indices)  # get the training Labels
 
+        y_train = y_train.to_frame()
+        y_test = y_test.to_frame()
+
+        print(
+            f'training set size: {X_train.shape[0]} samples \ntest set size: {X_test.shape[0]} samples')
+
         if listindex:
             X_train = X_train.values.tolist()
             X_test = X_test.values.tolist()

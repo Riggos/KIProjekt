@@ -5,25 +5,18 @@ und diese mit den ursprünglichen Bildern in einen angegebenden Ort abzuspeicher
 __author__ = ""
 __version__ = "1.0.1"
 
-
-<<<<<<< HEAD
-=======
-
->>>>>>> acbedfe7fc982edf5d30f9d7f109226b4a6d5cc3
-from tkinter import Image
-import pandas as pd
-import seaborn as sns
-import random
-import numpy as np
-
-import matplotlib.pyplot as plt
-import seaborn as sns
-import os
-import cv2
-import xlsxwriter
-from openpyxl import Workbook, load_workbook
-import os.path
 from openpyxl.utils.dataframe import dataframe_to_rows
+import os.path
+from openpyxl import Workbook, load_workbook
+import xlsxwriter
+import cv2
+import os
+import matplotlib.pyplot as plt
+import numpy as np
+import random
+import seaborn as sns
+import pandas as pd
+from tkinter import Image
 
 
 class Data_preparation:

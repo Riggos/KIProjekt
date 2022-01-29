@@ -7,7 +7,7 @@ __version__ = "1.0.1"
 
 
 
-tkinter import Image
+from tkinter import Image
 import pandas as pd
 import seaborn as sns
 import random

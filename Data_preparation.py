@@ -90,25 +90,6 @@ class Data_preparation:
         before = sns.pairplot(df.replace({columns[-1]: di}), hue=columns[-1])
         before.fig.suptitle('Pair Plot of Dataset', y=1.08)
 
-    def load_pictures(self, folder_location):
-        path = 'animal/'
-        img_dict = dict()
-
-        for root, dirs, files in os.walk(path):
-            print(os.path.basename(root))
-            my_key = os.path.basename(root)
-
-            dir_images = []
-            for file_ in files:
-                full_file_path = os.path.join(root, file_)
-                img = cv2.imread(full_file_path)
-                img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-                dir_images.append(img)
-
-            img_dict[my_key] = dir_images
-
-        return img_dict
-
     def create_Image_dataset(self, img_folder, IMG_HEIGHT, IMG_WIDTH):
 
         img_data_array = []

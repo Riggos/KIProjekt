@@ -16,7 +16,7 @@ import os
 import numpy as np
 from scipy.spatial import distance
 import copy
-import ricimg_to_table as ritt
+import img_to_table as ritt
 
 
 class data_aug(ritt.imgorga):

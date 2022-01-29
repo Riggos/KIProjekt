@@ -6,6 +6,10 @@ __author__ = ""
 __version__ = "1.0.1"
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> acbedfe7fc982edf5d30f9d7f109226b4a6d5cc3
 from tkinter import Image
 import pandas as pd
 import seaborn as sns

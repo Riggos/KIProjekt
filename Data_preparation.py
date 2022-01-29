@@ -1,4 +1,13 @@
-from tkinter import Image
+"""Dieses Python File beinhaltet eine Klasse um Data Augmentation auf Bilder in einem Ordner durchzuführen
+und diese mit den ursprünglichen Bildern in einen angegebenden Ort abzuspeichern
+"""
+
+__author__ = ""
+__version__ = "1.0.1"
+
+
+
+tkinter import Image
 import pandas as pd
 import seaborn as sns
 import random

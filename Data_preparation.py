@@ -17,6 +17,9 @@ import seaborn as sns
 import os
 import cv2
 import xlsxwriter
+from openpyxl import Workbook, load_workbook
+import os.path
+from openpyxl.utils.dataframe import dataframe_to_rows
 
 
 class Data_preparation:
@@ -151,9 +154,17 @@ class Data_preparation:
         CorrMatrix = features.corr()
         sns.heatmap(CorrMatrix, annot=True)
 
-    def store_data_to_excel_file(self, classification_report="Classification_Reports.xlsx", path, sheet_name):
-        writer = pd.ExcelWriter(path, engine='xlsxwriter')
-        report_df = pd.DataFrame(classification_report).transpose()
-        report_df.to_excel(writer, sheet_name=sheet_name)
-        writer.save()
-        # writer.close()
+    def classification_report_csv(self, report, path):
+        report_data = []
+        lines = report.split('\n')
+        for line in lines[2:-3]:
+            row = {}
+            row_data = line.split('      ')
+            row['class'] = row_data[0]
+            row['precision'] = float(row_data[1])
+            row['recall'] = float(row_data[2])
+            row['f1_score'] = float(row_data[3])
+            row['support'] = float(row_data[4])
+            report_data.append(row)
+        dataframe = pd.DataFrame.from_dict(report_data)
+        dataframe.to_csv("Classification_reports/"+path, index=False)

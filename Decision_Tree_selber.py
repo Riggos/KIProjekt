@@ -1,3 +1,13 @@
+"""
+Dieses Python File beinhaltet eine Klasse "Decison_Tree_Class" welche einen Merkmaldatensatz und den dazugehörigen Labels eine Klassifikation nach einem 
+Decision Tree Verfahren durchführt 
+
+"""
+
+__author__ = "Eric Hirsch und Jonas Morsch"
+__version__ = "1.0.0"
+
+
 import random
 import pandas as pd
 import numpy as np
@@ -21,52 +31,48 @@ class Decision_Tree_class:
 
         return train_df, test_df
 
-    def check_purity(self, data):  # Input is a numpy 2D arry
+    def check_purity(self, data):
 
-        label_column = data[:, -1]  # store the values of the label column
-        # store all unique values in an arary
+        label_column = data[:, -1]
+
         unique_classes = np.unique(label_column)
 
-        if len(unique_classes) == 1:  # check if ther is only on class. Therfore it is unique
+        if len(unique_classes) == 1:
             return True
         else:
             return False
 
-    def classify_data(self, data):  # Input is a numpy 2D arry
+    def classify_data(self, data):
 
-        label_column = data[:, -1]   # store the values of the label column
-        # returns a arry with the classes and one with the count of classes
+        label_column = data[:, -1]
+
         unique_classes, counts_unique_classes = np.unique(
             label_column, return_counts=True)
 
-        # returns the class witch appears the most
         index = counts_unique_classes.argmax()
         classification = unique_classes[index]
 
         return classification
 
-    def get_potential_splits(self, data):  # Input is a numpy 2D arry
+    def get_potential_splits(self, data):
 
         potential_splits = {}
         _, n_columns = data.shape
-        # excluding the last column which is the label
+
         for column_index in range(n_columns - 1):
             values = data[:, column_index]
-            unique_values = np.unique(values)  # store the unique values sorted
+            unique_values = np.unique(values)
 
             potential_splits[column_index] = unique_values
 
         return potential_splits
 
-    # check if the given data is below or above a given split_value
     def split_data(self, data, split_column, split_value):
 
-        # store all values of a chosen column
         split_column_values = data[:, split_column]
 
-        # only choose the values that are above the split_value
         data_below = data[split_column_values <= split_value]
-        # only choose the values that are below the split_value
+
         data_above = data[split_column_values > split_value]
 
         return data_below, data_above
@@ -74,31 +80,27 @@ class Decision_Tree_class:
     def calculate_entropy(self, data):
 
         label_column = data[:, -1]
-        # count the unique values for each class
+
         _, counts = np.unique(label_column, return_counts=True)
 
-        # calculate the probability for each class
         probabilities = counts / counts.sum()
-        # calculate the entropy
+
         entropy = sum(probabilities * -np.log2(probabilities))
 
         return entropy
 
     def calculate_overall_entropy(self, data_below, data_above):
 
-        # count the total number of values
         n = len(data_below) + len(data_above)
-        # count the total number of the data_below
+
         p_data_below = len(data_below) / n
-        # count the total number of the data_above
+
         p_data_above = len(data_above) / n
 
-        overall_entropy = (p_data_below * self.calculate_entropy(data_below)  # calculate the total entropy
+        overall_entropy = (p_data_below * self.calculate_entropy(data_below)
                            + p_data_above * self.calculate_entropy(data_above))
 
         return overall_entropy
-
-    # calculate all the entropies for the potential splits and store the lowest one and the responding column and the split value
 
     def determine_best_split(self, data, potential_splits):
 
@@ -135,7 +137,6 @@ class Decision_Tree_class:
 
     def decision_tree_algorithm(self, df, counter=0, min_samples=2, max_depth=5):
 
-        # data preparations
         if counter == 0:
             global COLUMN_HEADERS, FEATURE_TYPES
             COLUMN_HEADERS = df.columns
@@ -144,50 +145,39 @@ class Decision_Tree_class:
         else:
             data = df
 
-        # base cases
         if (self.check_purity(data)) or (len(data) < min_samples) or (counter == max_depth):
             classification = self.classify_data(data)
 
             return classification
 
-        # recursive part
         else:
             counter += 1
 
-            # helper functions
             potential_splits = self.get_potential_splits(data)
             split_column, split_value = self.determine_best_split(
                 data, potential_splits)
             data_below, data_above = self.split_data(
                 data, split_column, split_value)
 
-            # check for empty data
             if len(data_below) == 0 or len(data_above) == 0:
                 classification = self.classify_data(data)
                 return classification
 
-            # determine question
             feature_name = COLUMN_HEADERS[split_column]
             type_of_feature = FEATURE_TYPES[split_column]
             if type_of_feature == "continuous":
                 question = "{} <= {}".format(feature_name, split_value)
 
-            # feature is categorical
             else:
                 question = "{} = {}".format(feature_name, split_value)
 
-            # instantiate sub-tree
             sub_tree = {question: []}
 
-            # find answers (recursion)
             yes_answer = self.decision_tree_algorithm(
                 data_below, counter, min_samples, max_depth)
             no_answer = self.decision_tree_algorithm(
                 data_above, counter, min_samples, max_depth)
 
-            # If the answers are the same, then there is no point in asking the qestion.
-            # This could happen when the data is classified even though it is not pure
-            # yet (min_samples or max_depth base case).
             if yes_answer == no_answer:
                 sub_tree = yes_answer
             else:
@@ -200,25 +190,21 @@ class Decision_Tree_class:
         question = list(tree.keys())[0]
         feature_name, comparison_operator, value = question.split(" ")
 
-        # ask question
         if comparison_operator == "<=":  # feature is continuous
             if example[feature_name] <= float(value):
                 answer = tree[question][0]
             else:
                 answer = tree[question][1]
 
-        # feature is categorical
         else:
             if str(example[feature_name]) == value:
                 answer = tree[question][0]
             else:
                 answer = tree[question][1]
 
-        # base case
         if not isinstance(answer, dict):
             return answer
 
-        # recursive part
         else:
             residual_tree = answer
             return self.classify_example(example, residual_tree)
@@ -241,25 +227,21 @@ class Decision_Tree_class:
         question = list(tree.keys())[0]
         feature_name, comparison_operator, value = question.split(" ")
 
-        # ask question
         if comparison_operator == "<=":
             if example[feature_name] <= float(value):
                 answer = tree[question][0]
             else:
                 answer = tree[question][1]
 
-        # feature is categorical
         else:
             if str(example[feature_name]) == value:
                 answer = tree[question][0]
             else:
                 answer = tree[question][1]
 
-        # base case
         if not isinstance(answer, dict):
             return answer
 
-        # recursive part
         else:
             residual_tree = answer
             return self.predict_example(example, residual_tree)

@@ -6,8 +6,7 @@ __author__ = ""
 __version__ = "1.0.1"
 
 
-
-tkinter import Image
+from tkinter import Image
 import pandas as pd
 import seaborn as sns
 import random
@@ -17,6 +16,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 import cv2
+import xlsxwriter
 
 
 class Data_preparation:
@@ -150,3 +150,10 @@ class Data_preparation:
         features = df.iloc[:, :-1]
         CorrMatrix = features.corr()
         sns.heatmap(CorrMatrix, annot=True)
+
+    def store_data_to_excel_file(self, classification_report="Classification_Reports.xlsx", path, sheet_name):
+        writer = pd.ExcelWriter(path, engine='xlsxwriter')
+        report_df = pd.DataFrame(classification_report).transpose()
+        report_df.to_excel(writer, sheet_name=sheet_name)
+        writer.save()
+        # writer.close()

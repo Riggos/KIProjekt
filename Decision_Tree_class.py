@@ -1,6 +1,9 @@
 """
 Dieses Python File beinhaltet eine Klasse "Decison_Tree_Class" welche einen Merkmaldatensatz und den dazugehörigen Labels eine Klassifikation nach einem 
-Decision Tree Verfahren durchführt 
+Decision Tree Verfahren durchführt.
+
+Ziel ist es durch Bedingungen die Daten solagen aufzuteilen bis ein Datenanteil nur noch
+eine Klasse enthält. Dadurch kann dann die Klasse von Datensätzen bestimmt werden
 
 """
 
@@ -19,6 +22,8 @@ class Decision_Tree_class:
         pass
 
     def train_test_split(self, df, test_size):
+        """Trennt die Daten zu Traings und Test Daten.
+        Diese weden als panda_frame abgespeichert"""
 
         if isinstance(test_size, float):
             test_size = round(test_size * len(df))
@@ -32,6 +37,8 @@ class Decision_Tree_class:
         return train_df, test_df
 
     def check_purity(self, data):
+        """Schaut ob die geteilten Daten durch den Entscheidungsbaum nur eine 
+        Klasse enthält"""
 
         label_column = data[:, -1]
 
@@ -43,6 +50,9 @@ class Decision_Tree_class:
             return False
 
     def classify_data(self, data):
+        """Gibt an zu welcher Klasse die geteilten Daten gehören. Auch wenn die Daten 
+        nicht "pure" sind --> es wird größte Anzahl einer Klasse genommen im geteilten
+        Datensatz genommen"""
 
         label_column = data[:, -1]
 
@@ -55,6 +65,10 @@ class Decision_Tree_class:
         return classification
 
     def get_potential_splits(self, data):
+        """Bekommt einen 2D-numpy Array
+        Schaut sich die gesamten Daten an und gibt zurück wo die Daten getrennt werden
+        können.
+         --> potenzielle Trennpunkte"""
 
         potential_splits = {}
         _, n_columns = data.shape
@@ -68,28 +82,42 @@ class Decision_Tree_class:
         return potential_splits
 
     def split_data(self, data, split_column, split_value):
+        """Trennt die Daten an einem bestimmten Ort auf:
+            split_column: Welches Merkmal?
+            split_value: Bedingung wo die Daten im definerte Merkmal aufgeteilt werden
+            Gibt die beiden aufgeteilten Daten zurück"""
 
         split_column_values = data[:, split_column]
+        type_of_feature = FEATURE_TYPES[split_column]
 
-        data_below = data[split_column_values <= split_value]
-
-        data_above = data[split_column_values > split_value]
+        if type_of_feature == "coninuous":
+            data_below = data[split_column_values <= split_value]
+            data_above = data[split_column_values > split_value]
+        else:
+            data_below = data[split_column_values == split_value]
+            data_above = data[split_column_values != split_value]
 
         return data_below, data_above
 
     def calculate_entropy(self, data):
+        """Rechnet für die übergebenen Daten "data" die Entropie aus"""
 
+        #Zählt die einzelnen Klassen zusammen
         label_column = data[:, -1]
-
+        
         _, counts = np.unique(label_column, return_counts=True)
-
+        
+        # Rechnet die Wahrscheinlichkeiten der Klassen aus
         probabilities = counts / counts.sum()
-
+        # Rechnet die Entropie aus
         entropy = sum(probabilities * -np.log2(probabilities))
 
         return entropy
 
     def calculate_overall_entropy(self, data_below, data_above):
+        """Bekommt die in zwei Teilen aufgeteilen Daten und rechnet für beide die Entropie
+        aus und berchnet daraus die Overall Entropy
+        --> wie gut ist die Aufteilung"""
 
         n = len(data_below) + len(data_above)
 
@@ -103,6 +131,7 @@ class Decision_Tree_class:
         return overall_entropy
 
     def determine_best_split(self, data, potential_splits):
+        """Findet die eine beste Aufteilung für die Daten bzw. Eigenschaften"""
 
         overall_entropy = 9999
         for column_index in potential_splits:
@@ -120,8 +149,11 @@ class Decision_Tree_class:
         return best_split_column, best_split_value
 
     def determine_type_of_feature(self, df):
+        """Schaut ob die Features kategorisch (Bsp.: Geschlecht) oder koninuierlich (Bsp.: Größe) sind"""
 
         feature_types = []
+        # Bei Zahlen: bei vielen einzigartigen Zahlen ist es kontinuierlich
+        # Bei Strings: immer kategorisch
         n_unique_values_treshold = 15
         for feature in df.columns:
             if feature != "label":
@@ -136,7 +168,14 @@ class Decision_Tree_class:
         return feature_types
 
     def decision_tree_algorithm(self, df, counter=0, min_samples=2, max_depth=5):
+        """Erstellt den Entscheidungsbaum:
+        "counter" gibt an wie oft der Algoitmus schon durchlaufen wurde
+        "min_samples": alles was gleich oder kleiner ist wird direkt klassifiziert
+        "max-depth": gibt an wie Tief der Baum sein soll
+        """
 
+
+        # Wenn der Alorithmus zum erstmal Aufgerufen wird --> extrahiere die wichtigen Daten aus dem Dataframe
         if counter == 0:
             global COLUMN_HEADERS, FEATURE_TYPES
             COLUMN_HEADERS = df.columns
@@ -145,14 +184,17 @@ class Decision_Tree_class:
         else:
             data = df
 
+        #Bricht den Algorithmus ab wenn die Daten "pure" sind oder die Tiefe des Baums erreicht ist oder die Anzahl an Daten zu klein ist
         if (self.check_purity(data)) or (len(data) < min_samples) or (counter == max_depth):
             classification = self.classify_data(data)
 
             return classification
 
+        #Ruft die Funktion rekursiv auf um den Baum zu erstellen
         else:
             counter += 1
 
+            # Ruft oben definerte Funktionen auf --> Teilt die Daten auf: Vorbereitung für die Äste und Blätter
             potential_splits = self.get_potential_splits(data)
             split_column, split_value = self.determine_best_split(
                 data, potential_splits)
@@ -165,6 +207,8 @@ class Decision_Tree_class:
 
             feature_name = COLUMN_HEADERS[split_column]
             type_of_feature = FEATURE_TYPES[split_column]
+            
+            ## Baut ein Dictonary auf indem der Entscheidungsbaum enthalten ist
             if type_of_feature == "continuous":
                 question = "{} <= {}".format(feature_name, split_value)
 
@@ -173,10 +217,10 @@ class Decision_Tree_class:
 
             sub_tree = {question: []}
 
-            yes_answer = self.decision_tree_algorithm(
-                data_below, counter, min_samples, max_depth)
-            no_answer = self.decision_tree_algorithm(
-                data_above, counter, min_samples, max_depth)
+            # Ruft für jede neue Verzweigung (Bedingung: Ja und Nein) den Algorithmus mit den
+            # entsprechenen aufgeteilten Daten neu auf (rekursiv)
+            yes_answer = self.decision_tree_algorithm(data_below, counter, min_samples, max_depth)
+            no_answer = self.decision_tree_algorithm(data_above, counter, min_samples, max_depth)
 
             if yes_answer == no_answer:
                 sub_tree = yes_answer
@@ -187,6 +231,7 @@ class Decision_Tree_class:
             return sub_tree
 
     def classify_example(self, example, tree):
+        """Bekommt ein Datum und versucht daraus die Klasse zu bestimmen"""
         question = list(tree.keys())[0]
         feature_name, comparison_operator, value = question.split(" ")
 
@@ -210,6 +255,7 @@ class Decision_Tree_class:
             return self.classify_example(example, residual_tree)
 
     def calculate_accuracy(self, df, tree):
+        """Berechnet die Genauigkeit des Entscheidungsbaum anhand eines Datensets"""
 
         df["classification"] = df.apply(
             self.classify_example, axis=1, args=(tree,))
@@ -220,6 +266,8 @@ class Decision_Tree_class:
         return accuracy
 
     def decision_tree_predictions(self, test_df, tree):
+        """"""
+
         predictions = test_df.apply(self.predict_example, args=(tree,), axis=1)
         return predictions
 

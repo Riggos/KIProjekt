@@ -337,7 +337,7 @@ class preimg:
             s_breitO = sleftO - srightU
             s_breitU =  sleftU -srightU
             self.imgdict["spitze_pktO"] = [slpktO,srpktO]
-            self.imgdict["spitze_pktU"] = [slpktU,srightU]
+            self.imgdict["spitze_pktU"] = [slpktU,srpktU]
             return abs(s_breitO/d_breit), abs(s_breitU/d_breit)
 
         else:
@@ -419,7 +419,7 @@ class preimg:
     def draw_image(self, wasdenn = None):
         """Funktion um entdeckte Features visuell auf einen extra Bild darzustellen"""
 
-        if wasdenn is "cnts" or wasdenn is None:
+        if wasdenn in ("cnts", None):
             cnts = self.imgdict["cmax"]
             left, right = self.imgdict["left"],self.imgdict["right"]
             top, bottom = self.imgdict["top"],self.imgdict["bottom"]
@@ -429,7 +429,7 @@ class preimg:
             cv2.circle(self.draw_img, right, 8, (0, 255, 255), -1)
             cv2.circle(self.draw_img, top, 8, (255, 50, 0), -1)
             cv2.circle(self.draw_img, bottom, 8, (255, 255, 0), -1)
-        if wasdenn is ("Spitze" or None):
+        if wasdenn in ("Spitze" , None):
             slpktO,srpktO = self.imgdict["spitze_pktO"][0], self.imgdict["spitze_pktO"][1]
             slpktU,srpktU = self.imgdict["spitze_pktU"][0], self.imgdict["spitze_pktU"][1]
 
@@ -438,7 +438,7 @@ class preimg:
             cv2.circle(self.draw_img, slpktU, 5, (255, 234, 255), -1)
             cv2.circle(self.draw_img, srpktU, 5, (255, 234, 255), -1)
 
-        if wasdenn is ("rect" or None):
+        if wasdenn in ("rect", None):
             rect = self.imgdict["rect"]
             box = cv2.boxPoints(rect)
             box = np.int0(box)

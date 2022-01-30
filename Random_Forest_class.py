@@ -19,6 +19,8 @@ class Random_Forrest_class:
         pass
 
     def train_test_split(self, df, test_size):
+        """Trennt die Daten zu Traings und Test Daten.
+        Diese weden als panda_frame abgespeichert"""
 
         if isinstance(test_size, float):
             test_size = round(test_size * len(df))
@@ -32,7 +34,8 @@ class Random_Forrest_class:
         return train_df, test_df
 
     def check_purity(self, data):
-
+        """Schaut ob die geteilten Daten durch den Entscheidungsbaum nur eine 
+        Klasse enthält"""
         label_column = data[:, -1]
 
         unique_classes = np.unique(label_column)
@@ -43,6 +46,9 @@ class Random_Forrest_class:
             return False
 
     def classify_data(self, data):
+        """Gibt an zu welcher Klasse die geteilten Daten gehören. Auch wenn die Daten 
+        nicht "pure" sind --> es wird größte Anzahl einer Klasse genommen im geteilten
+        Datensatz genommen"""
 
         label_column = data[:, -1]
 
@@ -55,7 +61,11 @@ class Random_Forrest_class:
         return classification
 
     def get_potential_splits(self, data, random_subspace):
-
+        """Bekommt einen 2D-numpy Array
+        Schaut sich die gesamten Daten an und gibt zurück wo die Daten getrennt werden
+        können.
+        "random_subspace": Wieviele Eigenschaften werde zufällig genommen
+         --> potenzielle Trennpunkte"""
         potential_splits = {}
         _, n_columns = data.shape
 
@@ -75,6 +85,10 @@ class Random_Forrest_class:
         return potential_splits
 
     def split_data(self, data, split_column, split_value):
+        """Trennt die Daten an einem bestimmten Ort auf:
+        split_column: Welches Merkmal?
+        split_value: Bedingung wo die Daten im definerte Merkmal aufgeteilt werden
+        Gibt die beiden aufgeteilten Daten zurück"""
 
         split_column_values = data[:, split_column]
 
@@ -85,6 +99,7 @@ class Random_Forrest_class:
         return data_below, data_above
 
     def calculate_entropy(self, data):
+        """Rechnet für die übergebenen Daten "data" die Entropie aus"""
 
         label_column = data[:, -1]
 
@@ -97,6 +112,9 @@ class Random_Forrest_class:
         return entropy
 
     def calculate_overall_entropy(self, data_below, data_above):
+        """Bekommt die in zwei Teilen aufgeteilen Daten und rechnet für beide die Entropie
+        aus und berchnet daraus die Overall Entropy
+        --> wie gut ist die Aufteilung"""
 
         n = len(data_below) + len(data_above)
 
@@ -112,7 +130,7 @@ class Random_Forrest_class:
     # Berechner der Entrophie um mögliche unterteilung der Daten zu finden speicher Spalte und den Wert zum Teilen des Datensatzes
 
     def determine_best_split(self, data, potential_splits):
-
+        """Findet die eine beste Aufteilung für die Daten bzw. Eigenschaften"""
         overall_entropy = 9999
         for column_index in potential_splits:
             for value in potential_splits[column_index]:
@@ -129,7 +147,7 @@ class Random_Forrest_class:
         return best_split_column, best_split_value
 
     def determine_type_of_feature(self, df):
-
+        """Schaut ob die Features kategorisch (Bsp.: Geschlecht) oder koninuierlich (Bsp.: Größe) sind"""
         feature_types = []
         n_unique_values_treshold = 15
         for feature in df.columns:
@@ -145,7 +163,12 @@ class Random_Forrest_class:
         return feature_types
 
     def decision_tree_algorithm(self, df, counter=0, min_samples=2, max_depth=5, random_subspace=None):
-
+        """Erstellt den Entscheidungsbaum:
+        "counter" gibt an wie oft der Algoitmus schon durchlaufen wurde
+        "min_samples": alles was gleich oder kleiner ist wird direkt klassifiziert
+        "max-depth": gibt an wie Tief der Baum sein soll
+        "random_subspace": WIeviele Eigenschaften werden zufällig genommen
+        """
         if counter == 0:
             global COLUMN_HEADERS, FEATURE_TYPES
             COLUMN_HEADERS = df.columns
@@ -196,6 +219,7 @@ class Random_Forrest_class:
             return sub_tree
 
     def classify_example(self, example, tree):
+        """Bekommt ein Datum und versucht daraus die Klasse zu bestimmen"""
         question = list(tree.keys())[0]
         feature_name, comparison_operator, value = question.split(" ")
 
@@ -219,7 +243,7 @@ class Random_Forrest_class:
             return self.classify_example(example, residual_tree)
 
     def calculate_accuracy(self, df, tree):
-
+        """Berechnet die Genauigkeit des Entscheidungsbaum anhand eines Datensets"""
         df["classification"] = df.apply(
             self.classify_example, axis=1, args=(tree,))
         df["classification_correct"] = df["classification"] == df["Label"]
@@ -262,6 +286,9 @@ class Random_Forrest_class:
         return accuracy
 
     def bootstrapping(self, train_df, n_bootstrap):
+        """Entnimmt aus dem Hauptdaten (traind_df) zufällige einzelne Daten und erstellt daraus "neue"
+        Trainingsdaten (Bootstrapped) --> jeweils für einen random forest
+        n_bootstrap: Gibt die Größe an"""
         bootstraps_indices = np.random.randint(
             low=0, high=len(train_df), size=n_bootstrap)
         df_bootstrapped = train_df.iloc[bootstraps_indices]
@@ -269,17 +296,26 @@ class Random_Forrest_class:
         return df_bootstrapped
 
     def random_forrest_algorithm(self, train_df, n_trees, n_bootstrap, n_features, dt_max_depth):
+        """Erstellt den Random Forest
+        "n_trees": Wieviele Entscheidungsbäume sollen entstehen
+        "n_bootstrap": Größe des Bootstrap Trainingsdaten
+        "n_features": Mit wievielen Features soll ein Entscheidungsbaum entscheiden
+        "dt_max_depth": maximale Tiefe der Entscheidungsbäume
+        """
         forest = []
+        #Erstellt die Entscheidungsbäume
         for i in range(n_trees):
             df_bootstrapped = self.bootstrapping(train_df, n_bootstrap)
             tree = self.decision_tree_algorithm(
                 df_bootstrapped, max_depth=dt_max_depth, random_subspace=n_features)
             forest.append(tree)
-
+        # Gibt alle erstellten Entscheidungsbäume zurück
         return forest
 
     def random_forrest_predictions(self, test_df, forest):
+        """Führt die Bestimmung der Klasse mit random forest durch"""
         df_predictions = {}
+        # Sammelt alle Vorhersagen in ein Dictinary
         for i in range(len(forest)):
             column_name = "tree{}".format(i)
             predictions = self.decision_tree_predictions(
@@ -287,7 +323,8 @@ class Random_Forrest_class:
             df_predictions[column_name] = predictions
 
         df_predictions = pd.DataFrame(df_predictions)
-
+        # Zählt die Vorhersagen der verschiedenen Bäume zusammen --> die am meisten
+        # vorhergesagte Klasse wird genommen
         random_forest_predicitons = df_predictions.mode(axis=1)[0]
 
         return random_forest_predicitons

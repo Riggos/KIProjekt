@@ -6,9 +6,10 @@ __author__ = ""
 __version__ = "1.0.1"
 
 from openpyxl.utils.dataframe import dataframe_to_rows
+from sklearn.utils import shuffle
 import os.path
 from openpyxl import Workbook, load_workbook
-import xlsxwriter
+
 import cv2
 import os
 import matplotlib.pyplot as plt
@@ -100,6 +101,7 @@ class Data_preparation:
 
                 image_path = os.path.join(img_folder, dir1,  file)
                 image = cv2.imread(image_path)
+                # ,cv2.COLOR_BGR2GRAY adden wenn nötig
                 image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
                 image = cv2.resize(
                     image, (IMG_HEIGHT, IMG_WIDTH), interpolation=cv2.INTER_AREA)
@@ -112,8 +114,8 @@ class Data_preparation:
 
     def split_Image_data(self, Images, Labels, train_size):
 
-        index_list = []  # an empty list for the indicies
-        test_index = []
+        # index_list = []  # an empty list for the indicies
+        #test_index = []
         X_test = []
         X_train = []
         y_test = []
@@ -122,6 +124,7 @@ class Data_preparation:
         if isinstance(train_size, float):
             test_size = round(train_size * len(Images))
 
+        """
         for i in range(len(Images)):
             index_list.append(i)
 
@@ -138,6 +141,17 @@ class Data_preparation:
         for index in test_index:
             X_test.append(Images[index])
             y_test.append(Labels[index])
+        """
+
+        Images, Labels = shuffle(Images, Labels, random_state=0)
+
+        for i in range(test_size):
+            X_train.append(Images[i])
+            y_train.append(Labels[i])
+
+        for i in range(test_size, len(Images)):
+            X_test.append(Images[i])
+            y_test.append(Labels[i])
 
         X_train = np.asarray(X_train)
         y_train = np.array(y_train)
@@ -151,6 +165,8 @@ class Data_preparation:
         CorrMatrix = features.corr()
         sns.heatmap(CorrMatrix, annot=True)
 
+
+""""
     def classification_report_csv(self, report, path):
         report_data = []
         lines = report.split('\n')
@@ -165,3 +181,4 @@ class Data_preparation:
             report_data.append(row)
         dataframe = pd.DataFrame.from_dict(report_data)
         dataframe.to_csv("Classification_reports/"+path, index=False)
+"""

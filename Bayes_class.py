@@ -20,9 +20,12 @@ class GaussianNaiveBayes:
         self._priors = np.zeros(n_classes, dtype=np.float64)
 
         # Berechnen des Mittelwerts, Varianz und der aPriori Wahrscheinklichkeit für jede Klasse
+        # i = 0,1,2 für Dosenoeffner Flaschenoeffner und Korkenzieher
         for i, c in enumerate(self._classes):
             X_for_class_c = X[y == c]
+            # Mittelwerte des Features für Klasse i # axis 0 entlang der Spalten
             self._mean[i, :] = X_for_class_c.mean(axis=0)
+            # Varianzen des Features für Klase i
             self._var[i, :] = X_for_class_c.var(axis=0)
             self._priors[i] = X_for_class_c.shape[0] / float(n_samples)
 
@@ -31,6 +34,7 @@ class GaussianNaiveBayes:
     def _calculate_likelihood(self, class_idx, x):
         mean = self._mean[class_idx]
         var = self._var[class_idx]
+        # Berechung der Auftretenswahrscheinlichkeit bei einer Gaußschen Normalverteilung der Feature Werte
         num = np.exp(- (x-mean)**2 / (2 * var))
         denom = np.sqrt(2 * np.pi * var)
         return num / denom

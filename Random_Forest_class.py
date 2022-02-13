@@ -303,7 +303,7 @@ class Random_Forrest_class:
         "dt_max_depth": maximale Tiefe der Entscheidungsbäume
         """
         forest = []
-        #Erstellt die Entscheidungsbäume
+        # Erstellt die Entscheidungsbäume
         for i in range(n_trees):
             df_bootstrapped = self.bootstrapping(train_df, n_bootstrap)
             tree = self.decision_tree_algorithm(

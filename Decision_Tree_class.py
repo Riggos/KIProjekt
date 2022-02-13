@@ -90,7 +90,7 @@ class Decision_Tree_class:
         split_column_values = data[:, split_column]
         type_of_feature = FEATURE_TYPES[split_column]
 
-        if type_of_feature == "coninuous":
+        if type_of_feature == "continuous":
             data_below = data[split_column_values <= split_value]
             data_above = data[split_column_values > split_value]
         else:
@@ -102,11 +102,12 @@ class Decision_Tree_class:
     def calculate_entropy(self, data):
         """Rechnet für die übergebenen Daten "data" die Entropie aus"""
 
-        #Zählt die einzelnen Klassen zusammen
+        # die Label Spalte auswählen
         label_column = data[:, -1]
-        
+
+        # Zählt die Häfuigkeit der einzelnen Klassen
         _, counts = np.unique(label_column, return_counts=True)
-        
+
         # Rechnet die Wahrscheinlichkeiten der Klassen aus
         probabilities = counts / counts.sum()
         # Rechnet die Entropie aus
@@ -174,7 +175,6 @@ class Decision_Tree_class:
         "max-depth": gibt an wie Tief der Baum sein soll
         """
 
-
         # Wenn der Alorithmus zum erstmal Aufgerufen wird --> extrahiere die wichtigen Daten aus dem Dataframe
         if counter == 0:
             global COLUMN_HEADERS, FEATURE_TYPES
@@ -184,13 +184,13 @@ class Decision_Tree_class:
         else:
             data = df
 
-        #Bricht den Algorithmus ab wenn die Daten "pure" sind oder die Tiefe des Baums erreicht ist oder die Anzahl an Daten zu klein ist
+        # Bricht den Algorithmus ab wenn die Daten "pure" sind oder die Tiefe des Baums erreicht ist oder die Anzahl an Daten zu klein ist
         if (self.check_purity(data)) or (len(data) < min_samples) or (counter == max_depth):
             classification = self.classify_data(data)
 
             return classification
 
-        #Ruft die Funktion rekursiv auf um den Baum zu erstellen
+        # Ruft die Funktion rekursiv auf um den Baum zu erstellen
         else:
             counter += 1
 
@@ -205,10 +205,11 @@ class Decision_Tree_class:
                 classification = self.classify_data(data)
                 return classification
 
+            # inter Werte mit den richitnge Feature names ersetzen
             feature_name = COLUMN_HEADERS[split_column]
             type_of_feature = FEATURE_TYPES[split_column]
-            
-            ## Baut ein Dictonary auf indem der Entscheidungsbaum enthalten ist
+
+            # Baut ein Dictonary auf indem der Entscheidungsbaum enthalten ist
             if type_of_feature == "continuous":
                 question = "{} <= {}".format(feature_name, split_value)
 
@@ -219,8 +220,10 @@ class Decision_Tree_class:
 
             # Ruft für jede neue Verzweigung (Bedingung: Ja und Nein) den Algorithmus mit den
             # entsprechenen aufgeteilten Daten neu auf (rekursiv)
-            yes_answer = self.decision_tree_algorithm(data_below, counter, min_samples, max_depth)
-            no_answer = self.decision_tree_algorithm(data_above, counter, min_samples, max_depth)
+            yes_answer = self.decision_tree_algorithm(
+                data_below, counter, min_samples, max_depth)
+            no_answer = self.decision_tree_algorithm(
+                data_above, counter, min_samples, max_depth)
 
             if yes_answer == no_answer:
                 sub_tree = yes_answer
@@ -232,7 +235,8 @@ class Decision_Tree_class:
 
     def classify_example(self, example, tree):
         """Bekommt ein Datum und versucht daraus die Klasse zu bestimmen"""
-        question = list(tree.keys())[0]
+        question = list(tree.keys())[
+            0]  # liefert das erste Elemnt aus einer Liste aus Fragen
         feature_name, comparison_operator, value = question.split(" ")
 
         if comparison_operator == "<=":  # feature is continuous
@@ -246,7 +250,7 @@ class Decision_Tree_class:
                 answer = tree[question][0]
             else:
                 answer = tree[question][1]
-
+    # Wenn die Antwort kein Dictionary ist haben wir unsere Klassifizierung
         if not isinstance(answer, dict):
             return answer
 
